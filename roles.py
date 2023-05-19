@@ -13,7 +13,7 @@ class Player:
 
 class Dealer:
     def __init__(self):
-        self.deck = cards.Deck()
+        pass
 
     def give_players_cards(self):
         return [cards.Deck.get_random_card()] * 2

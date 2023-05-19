@@ -68,8 +68,3 @@ class Deck:
 
     def __len__(self):
         return len(self.cards)
-
-
-a = Deck()
-c = [a.get_random_card()] * 5
-print(c[0])
