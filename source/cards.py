@@ -71,3 +71,5 @@ class Deck:
 
 
 a = Deck()
+c = [a.get_random_card()] * 5
+print(c[0])
