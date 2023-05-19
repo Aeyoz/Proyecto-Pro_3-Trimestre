@@ -6,6 +6,8 @@ import cards
 class Player:
     def __init__(self, name: str):
         self.name = name
+        self.cards = ""
+        self.common_cards = ""
 
     def get_best_combination(self):
         pass
@@ -13,7 +15,8 @@ class Player:
 
 class Dealer:
     def __init__(self):
-        pass
+        self.deck = ""
+        self.players = ""
 
     def give_players_cards(self):
         return [cards.Deck.get_random_card()] * 2
