@@ -34,7 +34,7 @@ class Card:
         return self.cmp_value > other.cmp_value
 
     def __str__(self):
-        return Card.GLYPHS[self.suit][self.value - 1]
+        return Card.GLYPH[self.suit][self.value - 1]
 
 
 class Deck:
@@ -44,6 +44,31 @@ class Deck:
             for num in range(1, 13 + 1):
                 self.cards.append(Card(num, suit))
 
-    @property
-    def get_random_card(self):
+    def get_random_card(self) -> Card:
+        deck_length = len(self.cards) - 1
+        return self.cards.pop(helpers.randint(1, deck_length))
 
+    def restore_deck(self):
+        self.cards = Deck().cards
+
+    @property
+    def random_card(self) -> Card:
+        return self.cards[helpers.randint(1, len(self.cards))]
+
+    @property
+    def top_card(self) -> Card:
+        return self.cards[0]
+
+    @property
+    def bottom_card(self) -> Card:
+        return self.cards[len(self.cards) - 1]
+
+
+a = Deck()
+print(len(a.cards))
+print(a.get_random_card())
+print(a.get_random_card())
+print(a.get_random_card())
+print(len(a.cards))
+a.restore_deck()
+print(len(a.cards))
