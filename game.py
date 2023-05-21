@@ -7,12 +7,14 @@ class Game:
     def __init__(self, number_of_players: int):
         self.deck = cards.Deck()
         self.players = [
-            roles.Player(f"Player{i + 1}") for i in range(number_of_players)
+            roles.Player(f"Player{i}") for i in range(1, number_of_players + 1)
         ]
         self.dealer = roles.Dealer()
+        self.dealer.deck = self.deck
         self.dealer.players = self.players
 
     def start_game(self):
+        self.deck.shuffle_deck()
         for player in self.players:
-            player.cards = [self.dealer.give_players_cards()]
+            player.get_cards(self.dealer)
         common_cards = self.dealer.show_comunity_cards()
