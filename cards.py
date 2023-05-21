@@ -64,7 +64,7 @@ class Deck:
 
     @property
     def bottom_card(self) -> Card:
-        return self.cards[len(self.cards) - 1]
+        return self.cards[-1]
 
     def __len__(self):
         return len(self.cards)
