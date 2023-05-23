@@ -90,7 +90,7 @@ class Hand:
             (3, 1, 1): 60,  # Trio
             (2, 2, 1): 50,  # Doble pareja
             (2, 1, 1, 1): 40,  # Pareja
-            (1, 1, 1, 1, 1, False): 30,  # Carta alta
+            (1, 1, 1, 1, 1): 30,  # Carta alta
         }
 
     # mismo palo
@@ -124,20 +124,19 @@ class Hand:
 
     def get_ranking(self):
         is_stair, hand_value = self.is_stair
-        highest_card = max(self.values())
-        if isinstance(is_stair, str):
+        highest_card = max(self.values)
+        if is_stair:
             return self.ranking[hand_value], highest_card
         if self.same_suits() and not self.consecutive:
             return self.ranking["color"], highest_card
         return self.ranking[self.get_patern()], highest_card
-            """"""
-        numbers = set(self.values)
-
-        pass
 
     def get_patern(self):
         return tuple(
-            {item: self.values.count(item) for item in set(self.values)}.values()
+            sorted(
+                {item: self.values.count(item) for item in set(self.values)}.values(),
+                reverse=True,
+            ),
         )
 
     def same_suits(self):
@@ -149,9 +148,9 @@ class Hand:
     def is_stair(self):
         if self.same_suits() and sum(self.values) == 60:
             return True, "escalera_real"
-        if self.same_suits() and self.consecutive():
+        if self.same_suits() and self.consecutive:
             return True, "escalera_de_color"
-        if self.consecutive():
+        if self.consecutive:
             return True, "stair"
         return False, None
 
@@ -167,15 +166,37 @@ class Hand:
 
 a = Deck()
 
-card3 = Card(2, Card.HEARTS)
-card4 = Card(3, Card.HEARTS)
 card1 = Card(1, Card.HEARTS)
-card2 = Card(1, Card.HEARTS)
+card2 = Card(2, Card.HEARTS)
+card3 = Card(3, Card.HEARTS)
+card4 = Card(4, Card.HEARTS)
 card5 = Card(5, Card.HEARTS)
+card6 = Card(10, Card.SPADES)
+card7 = Card(11, Card.SPADES)
+card8 = Card(12, Card.SPADES)
+card9 = Card(13, Card.SPADES)
+card10 = Card(1, Card.SPADES)
+card11 = Card(2, Card.CLUBS)
+card12 = Card(5, Card.CLUBS)
+card13 = Card(3, Card.CLUBS)
+card14 = Card(7, Card.CLUBS)
+card15 = Card(8, Card.CLUBS)
+card16 = Card(9, Card.HEARTS)
+card17 = Card(4, Card.SPADES)
+card18 = Card(3, Card.CLUBS)
+card19 = Card(2, Card.DIAMONDS)
+card20 = Card(7, Card.HEARTS)
 
-mano = Hand(card2, card3, card1, card4, card5)
+mano = Hand(card2, card3, card1, card4, card5)  # 250
+mano1 = Hand(card6, card7, card8, card9, card10)  # 500
+mano2 = Hand(card11, card12, card13, card14, card15)  # 80
+mano4 = Hand(card16, card17, card18, card19, card20)  # 30
 
-print(mano.best_combination[0])
-print(mano.same_suits())
-print(mano.consecutive())
-print(mano.get_patern())
+""" print(mano.best_combination[0])
+# print(mano.same_suits())
+# print(mano.get_patern())
+print(mano.get_ranking())
+print(mano1.get_ranking())
+print(mano2.get_ranking())
+print(mano4.get_ranking())
+ """
