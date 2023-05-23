@@ -86,7 +86,7 @@ class Hand:
             (4, 1): 100,  # Poker
             (3, 2): 90,  # Full
             "color": 80,  # Color
-            (1, 1, 1, 1, 1, True): 70,  # Escalera sin color
+            "stair": 70,  # Escalera sin color
             (3, 1, 1): 60,  # Trio
             (2, 2, 1): 50,  # Doble pareja
             (2, 1, 1, 1): 40,  # Pareja
@@ -123,32 +123,39 @@ class Hand:
         return sorted(to_compare_values)
 
     def get_ranking(self):
-        if isinstance(self.is_royal(), str):
-            return self.ranking[self.is_royal()]
-        if self.same_suits():
-            return self.ranking["color"]
-        if self.consecutive():
+        is_stair, hand_value = self.is_stair
+        highest_card = max(self.values())
+        if isinstance(is_stair, str):
+            return self.ranking[hand_value], highest_card
+        if self.same_suits() and not self.consecutive:
+            return self.ranking["color"], highest_card
+        return self.ranking[self.get_patern()], highest_card
             """"""
         numbers = set(self.values)
 
         pass
 
     def get_patern(self):
-        prueba = tuple({item:self.values.count(item) for item in set(self.values)}.values())
-        return prueba
+        return tuple(
+            {item: self.values.count(item) for item in set(self.values)}.values()
+        )
 
     def same_suits(self):
         return self.best_combination[0].suit * 5 == "".join(
             i.suit for i in self.best_combination
         )
 
-    def is_royal(self):
+    @property
+    def is_stair(self):
         if self.same_suits() and sum(self.values) == 60:
-            return "escalera_real"
+            return True, "escalera_real"
         if self.same_suits() and self.consecutive():
-            return "escalera_de_color"
-        return False
+            return True, "escalera_de_color"
+        if self.consecutive():
+            return True, "stair"
+        return False, None
 
+    @property
     def consecutive(self):
         fcard = self.values[0]
         for card in self.values[1:]:
@@ -158,19 +165,12 @@ class Hand:
         return True
 
 
-#    suit_element_0 = elements[0].suit
-#    for i in elements[1:]:
-#        if i.suit != suit_element_0:
-#            return False
-#        return True
-
-
 a = Deck()
 
+card3 = Card(2, Card.HEARTS)
+card4 = Card(3, Card.HEARTS)
 card1 = Card(1, Card.HEARTS)
-card2 = Card(2, Card.HEARTS)
-card3 = Card(3, Card.HEARTS)
-card4 = Card(4, Card.HEARTS)
+card2 = Card(1, Card.HEARTS)
 card5 = Card(5, Card.HEARTS)
 
 mano = Hand(card2, card3, card1, card4, card5)
@@ -178,4 +178,4 @@ mano = Hand(card2, card3, card1, card4, card5)
 print(mano.best_combination[0])
 print(mano.same_suits())
 print(mano.consecutive())
-print(mano.prueba())
+print(mano.get_patern())
