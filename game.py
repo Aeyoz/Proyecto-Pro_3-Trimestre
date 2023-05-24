@@ -18,7 +18,6 @@ class Game:
         for player in self.players:
             player.get_cards(self.dealer)
             player.common_cards = self.community_cards
-        for player in self.players:
             player.best_combination = player.get_best_combination() + (player.name,)
             print(player.best_combination)
         game_combs = list(player.best_combination for player in self.players)
