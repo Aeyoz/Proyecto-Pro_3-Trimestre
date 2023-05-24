@@ -43,15 +43,13 @@ class Card:
 
 
 class Deck:
+    deck = []
+    for suit in Card.GLYPH.keys():
+        for num in range(1, 13 + 1):
+            deck.append(Card(num, suit))
+
     def __init__(self):
         pass
-
-    def generate_cards(self):
-        self.deck = []
-        for suit in Card.GLYPH.keys():
-            for num in range(1, 13 + 1):
-                self.deck.append(Card(num, suit))
-        return self.deck
 
     def get_random_card(self) -> Card:
         deck_length = len(self) - 1
@@ -79,25 +77,25 @@ class Deck:
 
     def __len__(self):
         return len(self.deck)
-    
+
     def __str__(self):
         return f"{hex(id(self))}"
 
 
 class Hand:
-    def __init__(self, *combination: tuple):
+    def __init__(self, combination: tuple):
         self.combination = combination
         self.ranking = {
-            "escalera_real": 500,      # Escalera real
+            "escalera_real": 500,  # Escalera real
             "escalera_de_color": 250,  # Escalera de color
-            (4, 1): 100,               # Poker
-            (3, 2): 90,                # Full
-            "color": 80,               # Color
-            "stair": 70,               # Escalera sin color
-            (3, 1, 1): 60,             # Trio
-            (2, 2, 1): 50,             # Doble pareja
-            (2, 1, 1, 1): 40,          # Pareja
-            (1, 1, 1, 1, 1): 30,       # Carta alta
+            (4, 1): 100,  # Poker
+            (3, 2): 90,  # Full
+            "color": 80,  # Color
+            "stair": 70,  # Escalera sin color
+            (3, 1, 1): 60,  # Trio
+            (2, 2, 1): 50,  # Doble pareja
+            (2, 1, 1, 1): 40,  # Pareja
+            (1, 1, 1, 1, 1): 30,  # Carta alta
         }
 
     # mismo palo
@@ -136,28 +134,15 @@ class Hand:
             return self.ranking[hand_value], highest_card
         if self.same_suits() and not self.consecutive:
             return self.ranking["color"], highest_card
-        return self.ranking[self.get_patern()], self.get_patern_highest_value()
-
-    def get_patern_highest_value(self):
-        return tuple(
-            sorted(
-                {item: self.values.count(item) for item in set(self.values)}.keys(),
-                reverse=True,
-            ),
-        )
+        ranking, value = self.get_patern()
+        return self.ranking[ranking], value
 
     def get_patern(self):
-        return tuple(
-            sorted(
-                {item: self.values.count(item) for item in set(self.values)}.values(),
-                reverse=True,
-            ),
-        )
+        pattern_values = {item: self.values.count(item) for item in set(self.values)}
+        return sorted(pattern_values, reverse=True), max(pattern_values.keys())
 
     def same_suits(self):
-        return self.combination[0].suit * 5 == "".join(
-            i.suit for i in self.combination
-        )
+        return self.combination[0].suit * 5 == "".join(i.suit for i in self.combination)
 
     @property
     def is_stair(self):
@@ -177,6 +162,7 @@ class Hand:
                 return False
             fcard = card
         return True
+
 
 """
 a = Deck()
@@ -203,10 +189,10 @@ card18 = Card(3, Card.CLUBS)
 card19 = Card(2, Card.DIAMONDS)
 card20 = Card(7, Card.HEARTS)
 
-mano = Hand(card2, card3, card1, card4, card5)  # 250
-mano1 = Hand(card6, card7, card8, card9, card10)  # 500
-mano2 = Hand(card11, card12, card13, card14, card15)  # 80
-mano4 = Hand(card16, card17, card18, card19, card20)  # 30
+mano = Hand((card2, card3, card1, card4, card5))  # 250
+mano1 = Hand((card6, card7, card8, card9, card10))  # 500
+mano2 = Hand((card11, card12, card13, card14, card15))  # 80
+mano4 = Hand((card16, card17, card18, card19, card20))  # 30
 """
 print(mano.combination[0])
 print(mano.same_suits())

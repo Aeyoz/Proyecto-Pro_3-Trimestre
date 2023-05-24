@@ -12,7 +12,6 @@ class Game:
     def start_game(self):
         self.dealer = roles.Dealer()
         self.deck = self.dealer.deck = cards.Deck()
-        self.dealer.deck.generate_cards()
         self.dealer.deck.shuffle_deck()
         self.dealer.players = self.players
         self.community_cards = self.dealer.display_community_cards()

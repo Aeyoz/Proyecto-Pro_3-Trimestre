@@ -13,9 +13,9 @@ class Player:
         player_cards.extend(common_cards)
         hand_combs = []
         for iter in helpers.combinations(player_cards, n=5):
-            #print([f"{card.value}{card.suit}" for card in iter])
-            hand_combs.append(cards.Hand(*iter).get_ranking())
-        #print(set(hand_combs))
+            # print([f"{card.value}{card.suit}" for card in iter])
+            hand_combs.append(cards.Hand(iter).get_ranking())
+        # print(set(hand_combs))
         best_comb = None
         for comb in set(hand_combs):
             if best_comb == None or comb[0] > best_comb[0]:
@@ -32,7 +32,6 @@ class Player:
 class Dealer:
     def __init__(self):
         self.name = "Dealer"
-        self.deck = cards.Deck()
 
     def give_players_cards(self):
         return [self.deck.get_random_card() for _ in range(2)]
@@ -40,16 +39,17 @@ class Dealer:
     def display_community_cards(self):
         return [self.deck.get_random_card() for _ in range(5)]
 
+
 a = Dealer()
 b = Player("Player1")
 
-#b.get_cards(a)
-#print(b.get_best_combination())
+# b.get_cards(a)
+# print(b.get_best_combination())
 # print(a.deck)
 # print(b.get_best_combination())
 # print(a.give_players_cards())
 # print(a.display_comunity_cards())
 # print(b.cards)
 # print(b.common_cards)
-#print(b.get_best_combination())
+# print(b.get_best_combination())
 # print(b.cards)
