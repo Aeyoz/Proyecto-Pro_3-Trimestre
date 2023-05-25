@@ -15,8 +15,11 @@ class Game:
         self.dealer.deck.shuffle_deck()
         self.dealer.players = self.players
         self.community_cards = self.dealer.display_community_cards()
+        print(" |  ".join(f"{card.value}{card.suit}" for card in self.community_cards))
         for player in self.players:
             player.get_cards(self.dealer)
+            print(player.name + "\n")
+            print(" |  ".join(f"{card.value}{card.suit}" for card in player.cards))
             player.common_cards = self.community_cards
             player.best_combination = player.get_best_combination() + (player.name,)
             print(player.best_combination)

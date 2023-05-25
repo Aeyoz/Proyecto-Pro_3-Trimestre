@@ -131,15 +131,17 @@ class Hand:
         is_stair, hand_value = self.is_stair
         highest_card = max(self.values)
         if is_stair:
-            return self.ranking[hand_value], highest_card
+            return self.ranking[hand_value]["punctuation"], highest_card
         if self.same_suits() and not self.consecutive:
-            return self.ranking["color"], highest_card
+            return self.ranking["color"]["punctuation"], highest_card
         ranking, value = self.get_patern()
-        return self.ranking[ranking], value
+        return self.ranking[ranking]["punctuation"], value
 
     def get_patern(self):
         pattern_values = {item: self.values.count(item) for item in set(self.values)}
-        return sorted(pattern_values, reverse=True), max(pattern_values.keys())
+        return tuple(sorted(pattern_values.values(), reverse=True)), max(
+            pattern_values.keys()
+        )
 
     def same_suits(self):
         return self.combination[0].suit * 5 == "".join(i.suit for i in self.combination)
