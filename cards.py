@@ -56,7 +56,7 @@ class Deck:
         return self.deck.pop(helpers.randint(1, deck_length))
 
     def reset_deck(self):
-        self.deck = Deck().generate_cards()
+        self.deck = Deck.deck()
 
     def shuffle_deck(self):
         helpers.shuffle(self.deck)
@@ -86,33 +86,17 @@ class Hand:
     def __init__(self, combination: tuple):
         self.combination = combination
         self.ranking = {
-            "escalera_real": 500,  # Escalera real
+            "escalera_real": 500,      # Escalera real
             "escalera_de_color": 250,  # Escalera de color
-            (4, 1): 100,  # Poker
-            (3, 2): 90,  # Full
-            "color": 80,  # Color
-            "stair": 70,  # Escalera sin color
-            (3, 1, 1): 60,  # Trio
-            (2, 2, 1): 50,  # Doble pareja
-            (2, 1, 1, 1): 40,  # Pareja
-            (1, 1, 1, 1, 1): 30,  # Carta alta
+            (4, 1): 100,               # Poker
+            (3, 2): 90,                # Full
+            "color": 80,               # Color
+            "stair": 70,               # Escalera sin color
+            (3, 1, 1): 60,             # Trio
+            (2, 2, 1): 50,             # Doble pareja
+            (2, 1, 1, 1): 40,          # Pareja
+            (1, 1, 1, 1, 1): 30,       # Carta alta
         }
-
-    # mismo palo
-    #    10,11,12,13,14 = "escalera real" = 60
-    #    "escalera_de_color" = sum(comb) != 60
-    #    "color" = sum(comb) != 60 and not conscutive
-
-    # no mismo palo
-    #    4 * card.value (4,4,4,4, 11) {4:4, 11:1} (4,1)
-    #    3 * card.value + 2 * card.value (2,2,2,3,3) {2:3, 3:2} (3,2)
-    #    1 + 2 + 3 + 4 + 5 (1,1,1,1,1, True)
-    #    3 * card.value (2,2,2,3,4) {2:3, 3:1, 4:1} (3,1,1)
-    #    2 * card.value + 2 * card.value (2,2,4,5,4) {2:2,4:2,5:1} (2,2,1)
-    #    2 * card.value (2,2,4,5,6) {2:2, 4:1, 5:1, 6:1} (2,1,1,1)
-    #    get_best_card (1,1,1,1,1, False)
-
-    # best_combination = (obj, obj, obj, obj, obj)
 
     @property
     def values(self):
@@ -129,19 +113,25 @@ class Hand:
 
     def get_ranking(self):
         is_stair, hand_value = self.is_stair
-        highest_card = max(self.values)
+        lower_card, highest_card = self.values[0], self.values[-1]
         if is_stair:
-            return self.ranking[hand_value]["punctuation"], highest_card
+            return self.ranking[hand_value], highest_card, lower_card
         if self.same_suits() and not self.consecutive:
-            return self.ranking["color"]["punctuation"], highest_card
-        ranking, value = self.get_patern()
-        return self.ranking[ranking]["punctuation"], value
+            return self.ranking["color"], highest_card, lower_card
+        ranking, max_value, min_value = self.patern
+        return self.ranking[ranking], max_value, min_value
 
-    def get_patern(self):
+    @property
+    def patern(self):
         pattern_values = {item: self.values.count(item) for item in set(self.values)}
-        return tuple(sorted(pattern_values.values(), reverse=True)), max(
-            pattern_values.keys()
-        )
+        if len(pattern_values) == len(self.values):
+            return tuple(sorted(pattern_values.values(), reverse=True)), max(pattern_values.keys()), min(pattern_values.keys())
+        pattern = list(pattern_values.values())
+        better_card_values = []
+        for key, value in pattern_values.items():
+            if value in pattern and value != 1:
+                better_card_values.append(key)
+        return tuple(sorted(pattern_values.values(), reverse=True)), max(better_card_values), min(better_card_values)
 
     def same_suits(self):
         return self.combination[0].suit * 5 == "".join(i.suit for i in self.combination)
@@ -195,11 +185,13 @@ mano = Hand((card2, card3, card1, card4, card5))  # 250
 mano1 = Hand((card6, card7, card8, card9, card10))  # 500
 mano2 = Hand((card11, card12, card13, card14, card15))  # 80
 mano4 = Hand((card16, card17, card18, card19, card20))  # 30
+
 """
-print(mano.combination[0])
-print(mano.same_suits())
-print(mano.get_patern())
+#print(mano.combination[0])
+#print(mano.same_suits())
+#print(mano.patern)
 print(mano.get_ranking())
 print(mano1.get_ranking())
 print(mano2.get_ranking())
-print(mano4.get_ranking())"""
+print(mano4.get_ranking())
+"""

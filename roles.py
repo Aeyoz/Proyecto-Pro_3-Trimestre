@@ -15,7 +15,7 @@ class Player:
         for iter in helpers.combinations(player_cards, n=5):
             # print([f"{card.value}{card.suit}" for card in iter])
             hand_combs.append(cards.Hand(iter).get_ranking())
-        # print(set(hand_combs))
+        
         best_comb = None
         for comb in set(hand_combs):
             if best_comb == None or comb[0] > best_comb[0]:
