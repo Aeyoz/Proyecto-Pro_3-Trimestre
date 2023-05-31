@@ -5,6 +5,10 @@ import roles
 
 class Game:
     def __init__(self, number_of_players: int):
+        if not isinstance(number_of_players, int):
+            raise ValueError(
+                f"Nº players -> {number_of_players} players must be a valid integer number"
+            )
         self.players = [
             roles.Player(f"Player{i}") for i in range(1, number_of_players + 1)
         ]
@@ -15,19 +19,30 @@ class Game:
         self.dealer.deck.shuffle_deck()
         self.dealer.players = self.players
         self.community_cards = self.dealer.display_community_cards()
-        #self.community_cards = [cards.Card(3, "♣"), cards.Card(3, "◆"), cards.Card(6, "♠"), cards.Card(12, "♠"), cards.Card(6, "❤")]
-        print(" |  ".join(f"{card.value}{card.suit}" for card in self.community_cards))
+        # print(" |  ".join(f"{card.value}{card.suit}" for card in self.community_cards))
+        best_comb = ()
         for player in self.players:
-            #player.cards = [cards.Card(1, "◆"), cards.Card(9, "◆")]
             player.get_cards(self.dealer)
-            print(player.name)
-            print(" |  ".join(f"{card.value}{card.suit}" for card in player.cards))
             player.common_cards = self.community_cards
             player.best_combination = player.get_best_combination() + (player.name,)
-            print(player.best_combination)
-            print("\n")
-        game_combs = list(player.best_combination for player in self.players)
-        return game_combs
+            if not best_comb or player.best_combination[0] > best_comb[0]:
+                best_comb = player.best_combination
+            elif player.best_combination[0] == best_comb[0]:
+                if player.best_combination[1] > best_comb[1]:
+                    best_comb = player.best_combination
+                elif player.best_combination[2] > best_comb[2]:
+                    best_comb = player.best_combination
+                elif (
+                    player.best_combination[1] == best_comb[1]
+                    and player.best_combination[2] == best_comb[2]
+                ):
+                    best_comb += (player.name, "Tie")
+            # print(player.name)
+            # print(" |  ".join(f"{card.value}{card.suit}" for card in player.cards))
+            # print(player.best_combination)
+            # print("\n")
+        return best_comb[-1]
 
-new_game = Game(4)
-new_game.start_game()
+
+new_game = Game(7)
+print(new_game.start_game())

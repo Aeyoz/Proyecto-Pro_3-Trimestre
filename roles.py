@@ -7,7 +7,7 @@ class Player:
     def __init__(self, name: str):
         self.name = name
 
-    def get_best_combination(self) -> tuple:
+    def get_best_combination(self):
         player_cards = list(card for card in self.cards)
         common_cards = list(card for card in self.common_cards)
         player_cards.extend(common_cards)
@@ -17,7 +17,7 @@ class Player:
             hand_comb = cards.Hand(iter).get_ranking()
             if not best_comb or hand_comb[0] > best_comb[0]:
                 best_comb = hand_comb
-            if hand_comb[0] == best_comb[0]:
+            elif hand_comb[0] == best_comb[0]:
                 if hand_comb[1] > best_comb[1]:
                     best_comb = hand_comb
                 elif hand_comb[2] > best_comb[2]:
