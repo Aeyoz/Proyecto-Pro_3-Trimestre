@@ -55,16 +55,16 @@ class Deck:
         deck_length = len(self) - 1
         return self.deck.pop(helpers.randint(1, deck_length))
 
-    def reset_deck(self):
+    def reset_deck(self) -> None:
         self.deck = Deck.deck()
 
-    def shuffle_deck(self):
+    def shuffle_deck(self) -> None:
         helpers.shuffle(self.deck)
 
-    def get_top_card(self):
+    def get_top_card(self) -> Card:
         return self.deck.pop(0)
 
-    def get_bottom_card(self):
+    def get_bottom_card(self) -> Card:
         return self.deck.pop()
 
     @property
@@ -75,12 +75,8 @@ class Deck:
     def bottom_card(self) -> Card:
         return self.deck[-1]
 
-    def __len__(self):
+    def __len__(self) -> int:
         return len(self.deck)
-
-    def __str__(self):
-        return f"{hex(id(self))}"
-
 
 class Hand:
     def __init__(self, combination: tuple):
@@ -99,7 +95,7 @@ class Hand:
         }
 
     @property
-    def values(self):
+    def values(self) -> list:
         to_compare_values = []
         for i in self.combination:
             if i.value == 1:
@@ -111,7 +107,7 @@ class Hand:
             to_compare_values.append(i.cmp_value)
         return sorted(to_compare_values)
 
-    def get_ranking(self):
+    def get_ranking(self) -> tuple:
         is_stair, hand_value = self.is_stair
         lower_card, highest_card = self.values[0], self.values[-1]
         if is_stair:
@@ -122,7 +118,7 @@ class Hand:
         return self.ranking[ranking], max_value, min_value
 
     @property
-    def patern(self):
+    def patern(self) -> tuple:
         pattern_values = {item: self.values.count(item) for item in set(self.values)}
         if len(pattern_values) == len(self.values):
             return tuple(sorted(pattern_values.values(), reverse=True)), max(pattern_values.keys()), min(pattern_values.keys())
@@ -133,11 +129,11 @@ class Hand:
                 better_card_values.append(key)
         return tuple(sorted(pattern_values.values(), reverse=True)), max(better_card_values), min(better_card_values)
 
-    def same_suits(self):
+    def same_suits(self) -> bool:
         return self.combination[0].suit * 5 == "".join(i.suit for i in self.combination)
 
     @property
-    def is_stair(self):
+    def is_stair(self) -> tuple:
         if self.same_suits() and sum(self.values) == 60:
             return True, "escalera_real"
         if self.same_suits() and self.consecutive:
@@ -147,7 +143,7 @@ class Hand:
         return False, None
 
     @property
-    def consecutive(self):
+    def consecutive(self) -> bool:
         fcard = self.values[0]
         for card in self.values[1:]:
             if (card - 1) != fcard:
@@ -155,14 +151,9 @@ class Hand:
             fcard = card
         return True
 
-
-"""
-a = Deck()
-"""
-
 card1 = Card(1, Card.HEARTS)
 card2 = Card(2, Card.HEARTS)
-card3 = Card(6, Card.HEARTS)
+card3 = Card(3, Card.HEARTS)
 card4 = Card(4, Card.SPADES)
 card5 = Card(5, Card.CLUBS)
 card6 = Card(10, Card.SPADES)
@@ -186,12 +177,4 @@ mano1 = Hand((card6, card7, card8, card9, card10))  # 500
 mano2 = Hand((card11, card12, card13, card14, card15))  # 80
 mano4 = Hand((card16, card17, card18, card19, card20))  # 30
 
-"""
-#print(mano.combination[0])
-#print(mano.same_suits())
-#print(mano.patern)
-print(mano.get_ranking())
-print(mano1.get_ranking())
-print(mano2.get_ranking())
-print(mano4.get_ranking())
-"""
+#print(mano.get_ranking())
