@@ -48,3 +48,5 @@ class Game:
 
 new_game = Game(7)
 print(new_game.start_game())
+
+https://prod.liveshare.vsengsaas.visualstudio.com/join?1433F621983C06C1CE1CCA0B8D946990FDA0
