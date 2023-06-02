@@ -37,6 +37,8 @@ class Game:
                     and player.best_combination[2] == best_comb[2]
                 ):
                     best_comb += (player.name, "Tie")
+
+            punctuation, *player_cards, player_name = (80, 4, "player1")
             # print(player.name)
             # print(" |  ".join(f"{card.value}{card.suit}" for card in player.cards))
             # print(player.best_combination)
