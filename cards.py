@@ -1,5 +1,4 @@
 from __future__ import annotations
-import helpers
 
 
 class Card:
@@ -42,55 +41,9 @@ class Card:
         return Card.GLYPH[self.suit][self.value - 1]
 
 
-class Deck:
-    deck = []
-    for suit in Card.GLYPH.keys():
-        for num in range(1, 13 + 1):
-            deck.append(Card(num, suit))
-
-    def __init__(self):
-        pass
-
-    def get_random_card(self) -> Card:
-        deck_length = len(self) - 1
-        return self.deck.pop(helpers.randint(1, deck_length))
-
-    def reset_deck(self) -> None:
-        self.deck = Deck.deck
-
-    def shuffle_deck(self) -> None:
-        helpers.shuffle(self.deck)
-
-    def get_top_card(self) -> Card:
-        return self.deck.pop(0)
-
-    def get_bottom_card(self) -> Card:
-        return self.deck.pop()
-
-    @property
-    def top_card(self) -> Card:
-        return self.deck[0]
-
-    @property
-    def bottom_card(self) -> Card:
-        return self.deck[-1]
-
-    def __len__(self) -> int:
-        return len(self.deck)
-
-
 class Hand:
     def __init__(self, combination: tuple):
         self.combination = combination
-        self.HIGH_CARD = (1, 1, 1, 1, 1)
-        self.ONE_PAIR = (2, 1, 1)
-        self.TWO_PAIR = (2, 2, 1)
-        self.THREE_OF_A_KIND = ""
-        self.STRAIGH = ""
-        self.FLUSH = ""
-        self.POKER = ""
-        self.HIGH_CARD = ""
-        self.HIGH_CARD = ""
         self.ranking = {
             "escalera_real": 500,  # Escalera real
             "escalera_de_color": 250,  # Escalera de color
@@ -169,29 +122,5 @@ class Hand:
             fcard = card
         return True
 
-
-card1 = Card(1, Card.HEARTS)
-card2 = Card(2, Card.HEARTS)
-card3 = Card(3, Card.HEARTS)
-card4 = Card(4, Card.SPADES)
-card5 = Card(5, Card.CLUBS)
-card6 = Card(10, Card.SPADES)
-card7 = Card(11, Card.SPADES)
-card8 = Card(12, Card.SPADES)
-card9 = Card(13, Card.SPADES)
-card10 = Card(1, Card.SPADES)
-card11 = Card(2, Card.CLUBS)
-card12 = Card(5, Card.CLUBS)
-card13 = Card(3, Card.CLUBS)
-card14 = Card(7, Card.CLUBS)
-card15 = Card(8, Card.CLUBS)
-card16 = Card(9, Card.HEARTS)
-card17 = Card(4, Card.SPADES)
-card18 = Card(3, Card.CLUBS)
-card19 = Card(2, Card.DIAMONDS)
-card20 = Card(7, Card.HEARTS)
-
-mano = Hand((card2, card3, card1, card4, card5))  # 250
-mano1 = Hand((card6, card7, card8, card9, card10))  # 500
-mano2 = Hand((card11, card12, card13, card14, card15))  # 80
-mano4 = Hand((card16, card17, card18, card19, card20))  # 30
+    def __contains__(self, other):
+        return other in self.combination
