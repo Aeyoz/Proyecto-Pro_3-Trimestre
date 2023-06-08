@@ -21,7 +21,7 @@ class Card:
     def __init__(self, card_representation: str):
         *str_value, suit = card_representation
         self.suit = suit
-        self.str_value = "".join(v for v in str_value)
+        self.str_value = "".join(str_value)
         self.value = Card.SYMBOLS.index(self.str_value) + 1
 
     @property
@@ -123,13 +123,19 @@ class Hand:
                 other_values.append(key)
         self.hand_values = list(sorted(self.hand_values, reverse=True))
         self.hand_values.extend(other_values)
-        return (
-            "".join(better_card_values)
-            if len(better_card_values) == 1
-            else tuple(sorted(better_card_values, reverse=True))
-            if self.cat == 3
-            else tuple(sorted(better_card_values))
-        )
+        if len(better_card_values) == 1:
+            return "".join(better_card_values)
+        if self.cat == 3:
+            return tuple(sorted(better_card_values, reverse=True))
+        if self.cat == self.FULL_HOUSE:
+            new_cat_rank = ()
+            14 % 13 - 1
+            first_value = tuple(Card.SYMBOLS[item % len(Card.SYMBOLS) - 1] for item, value in self.pattern_values.items() if value == 3)
+            second_value = tuple(Card.SYMBOLS[item % len(Card.SYMBOLS) - 1] for item, value in self.pattern_values.items() if value == 2)
+            new_cat_rank += first_value + second_value
+            return new_cat_rank
+    #    SYMBOLS = ("A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K")
+    #    SYMBOLS = ("0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12")
 
     def same_suits(self) -> bool:
         return self.combination[0].suit * 5 == "".join(i.suit for i in self.combination)
