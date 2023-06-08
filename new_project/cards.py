@@ -92,16 +92,6 @@ class Hand:
         return sorted(to_compare_values)
 
     @property
-    def compare_values_sum(self): 
-        values = []
-        for card in self.combination:
-            if card.value == 1:
-                if sum(self.total_sum) == 15:
-                    values.append(card.value)
-            values.append(card.cmp_value)
-        return sum(values)
-
-    @property
     def cat(self) -> int:
         is_stair, hand_value = self.is_stair
         if is_stair:
@@ -184,9 +174,9 @@ class Hand:
                 if card2 > card1:
                     print(f"Pierde {card1}, {card2}")
                     return False
-        if self.compare_values_sum > other.compare_values_sum:
+        if sum(self.values) > sum(other.values):
             return True
-        if self.compare_values_sum < other.compare_values_sum:
+        if sum(self.values) < sum(other.values):
             return False
         #print(self.hand_values, other.hand_values, "pepe")
         for card_num1, card_num2 in zip(self.hand_values, other.hand_values):
