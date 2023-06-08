@@ -80,15 +80,26 @@ class Hand:
     @property
     def values(self) -> list:
         to_compare_values = []
+        self.total_sum = list(i.value for i in self.combination)
         for i in self.combination:
             if i.value == 1:
-                if sum(i.value for i in self.combination) == 15:
+                if sum(self.total_sum) == 15:
                     to_compare_values.append(1)
                 else:
                     to_compare_values.append(i.cmp_value)
                 continue
             to_compare_values.append(i.cmp_value)
         return sorted(to_compare_values)
+
+    @property
+    def compare_values_sum(self): 
+        values = []
+        for card in self.combination:
+            if card.value == 1:
+                if sum(self.total_sum) == 15:
+                    values.append(card.value)
+            values.append(card.cmp_value)
+        return sum(values)
 
     @property
     def cat(self) -> int:
@@ -165,14 +176,19 @@ class Hand:
             return False
         if self.cat == Hand.TWO_PAIR or self.cat == Hand.FULL_HOUSE:  # (4, 3) (5, 4)
             for item1, item2 in zip(self.cat_rank, other.cat_rank):
-                card1 = Card.SYMBOLS.index(item1) + 1
-                card2 = Card.SYMBOLS.index(item2) + 1
+                card1 = Card.SYMBOLS.index(item1) + 1 if self.total_sum == 15 and item1 != "A" else 14
+                card2 = Card.SYMBOLS.index(item2) + 1 if self.total_sum == 15 and item2 != "A" else 14
                 if card1 > card2:
                     print(f"Gana {card1}, {card2}")
                     return True
                 if card2 > card1:
                     print(f"Pierde {card1}, {card2}")
                     return False
+        if self.compare_values_sum > other.compare_values_sum:
+            return True
+        if self.compare_values_sum < other.compare_values_sum:
+            return False
+        #print(self.hand_values, other.hand_values, "pepe")
         for card_num1, card_num2 in zip(self.hand_values, other.hand_values):
             if card_num1 > card_num2:
                 return True
@@ -181,9 +197,10 @@ class Hand:
         return False
 
 
-# new_hand = Hand((Card('A❤'), Card('9❤'), Card('K❤'), Card('K♠'), Card('A◆')))
-# print(new_hand.cat_rank)
-#
-# new_hand2 = Hand((Card('2♠'), Card('8❤'), Card('4♠'), Card('4◆'), Card('2◆')))
-# print(new_hand2.cat_rank)
-# print(new_hand2.hand_values)
+#new_hand = Hand((Card('A❤'), Card('9❤'), Card('K❤'), Card('K♠'), Card('A◆')))
+#print(new_hand.cat_rank)
+#print(new_hand.hand_values)
+
+#new_hand2 = Hand((Card('2♠'), Card('8❤'), Card('4♠'), Card('4◆'), Card('2◆')))
+#print(new_hand2.cat_rank)
+#print(new_hand2.hand_values)
