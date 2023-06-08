@@ -45,46 +45,6 @@ class Card:
     def __repr__(self) -> str:
         return f"{self.str_value}{self.suit}"
 
-
-# class Deck:
-#    deck = []
-#    for suit in Card.GLYPH.keys():
-#        for num in range(1, 13 + 1):
-#            card = str(num) + suit
-#            deck.append(Card(card))
-#
-#    def __init__(self):
-#        pass
-#
-#    def get_random_card(self) -> Card:
-#        deck_length = len(self) - 1
-#        return self.deck.pop(helpers.randint(1, deck_length))
-#
-#    def reset_deck(self) -> None:5
-#        self.deck = Deck.deck
-#
-#    def shuffle_deck(self) -> None:
-#        helpers.shuffle(self.deck)
-#
-#    def get_top_card(self) -> Card:
-#        return self.deck.pop(0)
-#
-#    def get_bottom_card(self) -> Card:
-#        return self.deck.pop()
-#
-#    @property
-#    def top_card(self) -> Card:
-#        return self.deck[0]
-#
-#    @property
-#    def bottom_card(self) -> Card:
-#        return self.deck[-1]
-#
-#    def __len__(self) -> int:
-#        return len(self.deck)
-#
-
-
 class Hand:
     HIGH_CARD = 1
     ONE_PAIR = 2
@@ -119,12 +79,13 @@ class Hand:
     @property
     def values(self) -> list:
         to_compare_values = []
-        self.str_values = [card.str_value for card in self.combination]
         for i in self.combination:
             if i.value == 1:
                 if sum(i.value for i in self.combination) == 15:
                     to_compare_values.append(1)
-                    continue
+                else:
+                    to_compare_values.append(i.cmp_value)
+                continue
             to_compare_values.append(i.cmp_value)
         return sorted(to_compare_values)
 
@@ -135,8 +96,6 @@ class Hand:
             return self.ranking[hand_value]
         if self.same_suits() and not self.consecutive:
             return self.ranking["color"]
-        # 3 3 3 2 2 (3, 2)
-        # 2 2 4 4 1 (4, 2)
         ranking = tuple(sorted(self.pattern_values.values(), reverse=True))
         return self.ranking[ranking]
 
@@ -148,16 +107,21 @@ class Hand:
         pattern = list(self.pattern_values.values())
         better_card_values = []
         other_values = []
-        complete_hand = []
         for key, value in self.pattern_values.items():
             if value in pattern and value != 1:
                 better_card_values.append(
-                    Card.SYMBOLS[key - 1] if key != 1 and key != 14 else "A"
+                    Card.SYMBOLS[key - 1] if key != 14 else "A"
                 )
             else:
                 other_values.append(key)
-        other_values = list(sorted(other_values, reverse=True))
-        self.hand_values.extend(better_card_values)
+        other_values = []
+        self.hand_values = []
+        for key, value in self.pattern_values.items():
+            if value != 1:
+                self.hand_values.extend([key] * value)
+            else:
+                other_values.append(key)
+        self.hand_values = list(sorted(self.hand_values,reverse=True))
         self.hand_values.extend(other_values)
         return (
             "".join(better_card_values)
@@ -189,36 +153,38 @@ class Hand:
             fcard = card
         return True
 
+    def __str__(self) -> str:
+        return f"{self.hand_values}"
+
     def __contains__(self, other: Card) -> bool:
         return other in self.combination
 
+    def __gt__(self, other: Hand) -> bool:
+        if self.cat > other.cat:
+            return True
+        if other.cat > self.cat:
+            return False
+        if self.cat == Hand.TWO_PAIR or self.cat == Hand.FULL_HOUSE:
+            for item1, item2 in zip(self.cat_rank, other.cat_rank):
+                card1 = Card.SYMBOLS.index(item1) + 1
+                card2 = Card.SYMBOLS.index(item2) + 1
+                if card1 > card2:
+                    print(f"Gana{card1}, {card2}")
+                    return True
+                if card2 > card1:
+                    print(f"Pierde{card1}, {card2}")
+                    return False
+        for card_num1, card_num2 in zip(self.hand_values, other.hand_values):
+            if card_num1 > card_num2:
+                return True
+            if card_num1 < card_num2:
+                return False
+        return False
 
-# card1 = Card("A❤")
-# card2 = Card("2" + Card.HEARTS)
-# card3 = Card("3" + Card.HEARTS)
-# card4 = Card("4" + Card.SPADES)
-# card5 = Card("5" + Card.CLUBS)
-# card6 = Card('10' + Card.SPADES)
-# card7 = Card('11' + Card.SPADES)
-# card8 = Card('12' + Card.SPADES)
-# card9 = Card('13' + Card.SPADES)
-# card10 = Card("A❤")
-# card11 = Card(f"K{Card.CLUBS}")
-# card12 = Card(f"Q{Card.CLUBS}")
-# card13 = Card("K❤")
-# card14 = Card("A◆")
-# card15 = Card('8' + Card.CLUBS)
-# card16 = Card('9' + Card.HEARTS)
-# card17 = Card('4' + Card.SPADES)
-# card18 = Card('3' + Card.CLUBS)
-# card19 = Card('2' + Card.DIAMONDS)
-# card20 = Card('7' + Card.HEARTS)
+
+#new_hand = Hand((Card('A❤'), Card('9❤'), Card('K❤'), Card('K♠'), Card('A◆')))
+#print(new_hand.cat_rank)
 #
-# mano = Hand((card10, card11, card12, card13, card14))  # 5
-# mano = Hand((Card("J♣"), Card("8◆"), Card("J◆"), Card("K♣"), Card("K◆")))
-# mano1 = Hand((card6, card7, card8, card9, card10))  # 500
-# mano2 = Hand((card11, card12, card13, card14, card15))  # 80
-# mano4 = Hand((card16, card17, card18, card19, card20))  # 30
-# print(Card("J♣") in mano)
-# print(mano.cat)
-# print(mano.cat_rank)
+#new_hand2 = Hand((Card('2♠'), Card('8❤'), Card('4♠'), Card('4◆'), Card('2◆')))
+#print(new_hand2.cat_rank)
+#print(new_hand2.hand_values)
