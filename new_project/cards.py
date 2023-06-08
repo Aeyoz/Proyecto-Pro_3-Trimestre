@@ -45,6 +45,7 @@ class Card:
     def __repr__(self) -> str:
         return f"{self.str_value}{self.suit}"
 
+
 class Hand:
     HIGH_CARD = 1
     ONE_PAIR = 2
@@ -109,9 +110,7 @@ class Hand:
         other_values = []
         for key, value in self.pattern_values.items():
             if value in pattern and value != 1:
-                better_card_values.append(
-                    Card.SYMBOLS[key - 1] if key != 14 else "A"
-                )
+                better_card_values.append(Card.SYMBOLS[key - 1] if key != 14 else "A")
             else:
                 other_values.append(key)
         other_values = []
@@ -121,7 +120,7 @@ class Hand:
                 self.hand_values.extend([key] * value)
             else:
                 other_values.append(key)
-        self.hand_values = list(sorted(self.hand_values,reverse=True))
+        self.hand_values = list(sorted(self.hand_values, reverse=True))
         self.hand_values.extend(other_values)
         return (
             "".join(better_card_values)
@@ -154,7 +153,7 @@ class Hand:
         return True
 
     def __str__(self) -> str:
-        return f"{self.hand_values}"
+        return f"{self.combination}"
 
     def __contains__(self, other: Card) -> bool:
         return other in self.combination
@@ -164,15 +163,15 @@ class Hand:
             return True
         if other.cat > self.cat:
             return False
-        if self.cat == Hand.TWO_PAIR or self.cat == Hand.FULL_HOUSE:
+        if self.cat == Hand.TWO_PAIR or self.cat == Hand.FULL_HOUSE:  # (4, 3) (5, 4)
             for item1, item2 in zip(self.cat_rank, other.cat_rank):
                 card1 = Card.SYMBOLS.index(item1) + 1
                 card2 = Card.SYMBOLS.index(item2) + 1
                 if card1 > card2:
-                    print(f"Gana{card1}, {card2}")
+                    print(f"Gana {card1}, {card2}")
                     return True
                 if card2 > card1:
-                    print(f"Pierde{card1}, {card2}")
+                    print(f"Pierde {card1}, {card2}")
                     return False
         for card_num1, card_num2 in zip(self.hand_values, other.hand_values):
             if card_num1 > card_num2:
@@ -182,9 +181,9 @@ class Hand:
         return False
 
 
-#new_hand = Hand((Card('A❤'), Card('9❤'), Card('K❤'), Card('K♠'), Card('A◆')))
-#print(new_hand.cat_rank)
+# new_hand = Hand((Card('A❤'), Card('9❤'), Card('K❤'), Card('K♠'), Card('A◆')))
+# print(new_hand.cat_rank)
 #
-#new_hand2 = Hand((Card('2♠'), Card('8❤'), Card('4♠'), Card('4◆'), Card('2◆')))
-#print(new_hand2.cat_rank)
-#print(new_hand2.hand_values)
+# new_hand2 = Hand((Card('2♠'), Card('8❤'), Card('4♠'), Card('4◆'), Card('2◆')))
+# print(new_hand2.cat_rank)
+# print(new_hand2.hand_values)
