@@ -63,7 +63,6 @@ class Hand:
         self.pattern_values = {
             item: self.values.count(item) for item in set(self.values)
         }
-        self.hand_values = []
         self.ranking = {
             "escalera_real": Hand.ROYAL_FLUSH,  # Escalera real
             "escalera_de_color": Hand.STRAIGHT_FLUSH,  # Escalera de color
@@ -102,34 +101,34 @@ class Hand:
         return self.ranking[ranking]
 
     @property
+    def hand_values(self):
+        other_values = []
+        hand_values = []
+        for key, value in self.pattern_values.items():
+            if value != 1:
+                hand_values.extend([key] * value)
+            else:
+                other_values.append(key)
+        hand_values = list(sorted(hand_values, reverse=True))
+        hand_values.extend(other_values)
+        return hand_values
+    
+    @property
     def cat_rank(self) -> str | tuple:
         if len(self.pattern_values) == len(self.values):
             highest_card = max(self.pattern_values.keys())
             return Card.SYMBOLS[highest_card - 1] if highest_card != 14 else "A"
         pattern = list(self.pattern_values.values())
         better_card_values = []
-        other_values = []
         for key, value in self.pattern_values.items():
             if value in pattern and value != 1:
                 better_card_values.append(Card.SYMBOLS[key - 1] if key != 14 else "A")
-            else:
-                other_values.append(key)
-        other_values = []
-        self.hand_values = []
-        for key, value in self.pattern_values.items():
-            if value != 1:
-                self.hand_values.extend([key] * value)
-            else:
-                other_values.append(key)
-        self.hand_values = list(sorted(self.hand_values, reverse=True))
-        self.hand_values.extend(other_values)
         if len(better_card_values) == 1:
             return "".join(better_card_values)
         if self.cat == 3:
-            return tuple(sorted(better_card_values, reverse=True))
+            return tuple(sorted((str(i) for i in better_card_values), reverse=True))
         if self.cat == self.FULL_HOUSE:
             new_cat_rank = ()
-            14 % 13 - 1
             first_value = tuple(Card.SYMBOLS[item % len(Card.SYMBOLS) - 1] for item, value in self.pattern_values.items() if value == 3)
             second_value = tuple(Card.SYMBOLS[item % len(Card.SYMBOLS) - 1] for item, value in self.pattern_values.items() if value == 2)
             new_cat_rank += first_value + second_value
@@ -175,11 +174,23 @@ class Hand:
                 card1 = Card.SYMBOLS.index(item1) + 1 if self.total_sum == 15 and item1 != "A" else 14
                 card2 = Card.SYMBOLS.index(item2) + 1 if self.total_sum == 15 and item2 != "A" else 14
                 if card1 > card2:
-                    print(f"Gana {card1}, {card2}")
+                    #print(f"Gana {card1}, {card2}")
                     return True
                 if card2 > card1:
-                    print(f"Pierde {card1}, {card2}")
+                    #print(f"Pierde {card1}, {card2}")
                     return False
+        print(self.cat_rank, "rank1")
+        print(other.cat_rank, "rank2")
+        cat_rank_num1 = Card.SYMBOLS.index(self.cat_rank) + 1 if sum(self.total_sum) > 15 and self.cat_rank != "A" else 14
+        cat_rank_num2 = Card.SYMBOLS.index(other.cat_rank) + 1 if sum(other.total_sum) > 15 and other.cat_rank != "A" else 14
+        #print("cat_rank_num1",cat_rank_num1)
+        #print("cat_rank_num2",cat_rank_num2)
+        # 13
+        # 12
+        if cat_rank_num1 > cat_rank_num2:
+            return True
+        if cat_rank_num1 < cat_rank_num2:
+            return False
         if sum(self.values) > sum(other.values):
             return True
         if sum(self.values) < sum(other.values):

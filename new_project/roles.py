@@ -19,3 +19,14 @@ class Player:
             if not hand or hand_comb > hand:
                 hand = hand_comb
         return hand
+
+p1 = Player("Player 1")    
+p2 = Player("Player 2")    
+p1.common_cards = p2.common_cards = [cards.Card('5❤'), cards.Card('9♠'), cards.Card('4◆'), cards.Card('2◆'), cards.Card('7◆')]
+p1.cards = [cards.Card('K◆'), cards.Card('3❤')]
+p2.cards = [cards.Card('Q♣'), cards.Card('J❤')]
+p1.hand = p1.get_best_combination()
+p2.hand = p2.get_best_combination()
+print(p1.hand)
+print(p2.hand)
+print(p1.hand > p2.hand)
