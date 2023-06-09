@@ -82,7 +82,7 @@ class Hand:
         self.total_sum = list(i.value for i in self.combination)
         for i in self.combination:
             if i.value == 1:
-                if sum(self.total_sum) == 15:
+                if max(self.total_sum) == 5:
                     to_compare_values.append(1)
                 else:
                     to_compare_values.append(i.cmp_value)
@@ -110,9 +110,10 @@ class Hand:
             else:
                 other_values.append(key)
         hand_values = list(sorted(hand_values, reverse=True))
+        other_values = list(sorted(other_values, reverse=True))
         hand_values.extend(other_values)
         return hand_values
-    
+
     @property
     def cat_rank(self) -> str | tuple:
         if len(self.pattern_values) == len(self.values):
@@ -125,14 +126,23 @@ class Hand:
                 better_card_values.append(Card.SYMBOLS[key - 1] if key != 14 else "A")
         if len(better_card_values) == 1:
             return "".join(better_card_values)
-        if self.cat == 3:
+        if self.cat == Hand.ONE_PAIR:
             return tuple(sorted((str(i) for i in better_card_values), reverse=True))
         if self.cat == self.FULL_HOUSE:
             new_cat_rank = ()
-            first_value = tuple(Card.SYMBOLS[item % len(Card.SYMBOLS) - 1] for item, value in self.pattern_values.items() if value == 3)
-            second_value = tuple(Card.SYMBOLS[item % len(Card.SYMBOLS) - 1] for item, value in self.pattern_values.items() if value == 2)
+            first_value = tuple(
+                Card.SYMBOLS[item % len(Card.SYMBOLS) - 1]
+                for item, value in self.pattern_values.items()
+                if value == 3
+            )
+            second_value = tuple(
+                Card.SYMBOLS[item % len(Card.SYMBOLS) - 1]
+                for item, value in self.pattern_values.items()
+                if value == 2
+            )
             new_cat_rank += first_value + second_value
             return new_cat_rank
+
     #    SYMBOLS = ("A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K")
     #    SYMBOLS = ("0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12")
 
@@ -169,22 +179,85 @@ class Hand:
             return True
         if other.cat > self.cat:
             return False
-        if self.cat == Hand.TWO_PAIR or self.cat == Hand.FULL_HOUSE:  # (4, 3) (5, 4)
-            for item1, item2 in zip(self.cat_rank, other.cat_rank):
-                card1 = Card.SYMBOLS.index(item1) + 1 if self.total_sum == 15 and item1 != "A" else 14
-                card2 = Card.SYMBOLS.index(item2) + 1 if self.total_sum == 15 and item2 != "A" else 14
-                if card1 > card2:
-                    #print(f"Gana {card1}, {card2}")
-                    return True
-                if card2 > card1:
-                    #print(f"Pierde {card1}, {card2}")
-                    return False
+        if self.cat == Hand.TWO_PAIR:
+            lower_value1, higher_value1 = self.cat_rank
+            lower_value2, higher_value2 = other.cat_rank
+            higher_value1 = (
+                Card.SYMBOLS.index(higher_value1) + 1 if higher_value1 != "A" else 14
+            )
+            higher_value2 = (
+                Card.SYMBOLS.index(higher_value2) + 1 if higher_value2 != "A" else 14
+            )
+            lower_value1 = (
+                Card.SYMBOLS.index(lower_value1) + 1 if lower_value1 != "A" else 14
+            )
+            lower_value2 = (
+                Card.SYMBOLS.index(lower_value2) + 1 if lower_value2 != "A" else 14
+            )
+            if higher_value1 > higher_value2:
+                return True
+            if higher_value1 < higher_value2:
+                return False
+            if lower_value1 > lower_value2:
+                return True
+            if lower_value1 < lower_value2:
+                return False
+
+        if self.cat == Hand.FULL_HOUSE:  # (4, 3) (5, 4)
+            higher_value1, lower_value1 = self.cat_rank
+            higher_value2, lower_value2 = other.cat_rank
+            higher_value1 = (
+                Card.SYMBOLS.index(higher_value1) + 1 if higher_value1 != "A" else 14
+            )
+            higher_value2 = (
+                Card.SYMBOLS.index(higher_value2) + 1 if higher_value2 != "A" else 14
+            )
+            lower_value1 = (
+                Card.SYMBOLS.index(lower_value1) + 1 if lower_value1 != "A" else 14
+            )
+            lower_value2 = (
+                Card.SYMBOLS.index(lower_value2) + 1 if lower_value2 != "A" else 14
+            )
+            if higher_value1 > higher_value2:
+                return True
+            if higher_value1 < higher_value2:
+                return False
+            if lower_value1 > lower_value2:
+                return True
+            if lower_value1 < lower_value2:
+                return False
+        cat_rank_num1 = (
+            Card.SYMBOLS.index(self.cat_rank) + 1
+            if max(self.total_sum) > 5 and self.cat_rank != "A"
+            else 14
+        )
+        cat_rank_num2 = (
+            Card.SYMBOLS.index(other.cat_rank) + 1
+            if max(other.total_sum) > 5 and other.cat_rank != "A"
+            else 14
+        )
+        # print("entro ahora")
+        # for item1, item2 in zip(self.cat_rank, other.cat_rank):
+        #    card1 = (
+        #        Card.SYMBOLS.index(item1) + 1
+        #        if self.total_sum == 15 and item1 != "A"
+        #        else 14
+        #    )
+        #    card2 = (
+        #        Card.SYMBOLS.index(item2) + 1
+        #        if self.total_sum == 15 and item2 != "A"
+        #        else 14
+        #    )
+        #    if card1 > card2:
+        #        # print(f"Gana {card1}, {card2}")
+        #        return True
+        #    if card2 > card1:
+        #        # print(f"Pierde {card1}, {card2}")
+        #        return False
         print(self.cat_rank, "rank1")
         print(other.cat_rank, "rank2")
-        cat_rank_num1 = Card.SYMBOLS.index(self.cat_rank) + 1 if sum(self.total_sum) > 15 and self.cat_rank != "A" else 14
-        cat_rank_num2 = Card.SYMBOLS.index(other.cat_rank) + 1 if sum(other.total_sum) > 15 and other.cat_rank != "A" else 14
-        #print("cat_rank_num1",cat_rank_num1)
-        #print("cat_rank_num2",cat_rank_num2)
+        # print("cat_rank_num1",cat_rank_num1)
+        # print("cat_rank_num2",cat_rank_num2)
         # 13
         # 12
         if cat_rank_num1 > cat_rank_num2:
@@ -195,7 +268,7 @@ class Hand:
             return True
         if sum(self.values) < sum(other.values):
             return False
-        #print(self.hand_values, other.hand_values, "pepe")
+        # print(self.hand_values, other.hand_values, "pepe")
         for card_num1, card_num2 in zip(self.hand_values, other.hand_values):
             if card_num1 > card_num2:
                 return True
@@ -204,10 +277,10 @@ class Hand:
         return False
 
 
-#new_hand = Hand((Card('A❤'), Card('9❤'), Card('K❤'), Card('K♠'), Card('A◆')))
-#print(new_hand.cat_rank)
-#print(new_hand.hand_values)
+# new_hand = Hand((Card('A❤'), Card('9❤'), Card('K❤'), Card('K♠'), Card('A◆')))
+# print(new_hand.cat_rank)
+# print(new_hand.hand_values)
 
-#new_hand2 = Hand((Card('2♠'), Card('8❤'), Card('4♠'), Card('4◆'), Card('2◆')))
-#print(new_hand2.cat_rank)
-#print(new_hand2.hand_values)
+# new_hand2 = Hand((Card('2♠'), Card('8❤'), Card('4♠'), Card('4◆'), Card('2◆')))
+# print(new_hand2.cat_rank)
+# print(new_hand2.hand_values)
