@@ -24,6 +24,20 @@ class Card:
         self.str_value = "".join(str_value)
         self.value = Card.SYMBOLS.index(self.str_value) + 1
 
+    @classmethod
+    def get_symbol(cls, card_num):
+        return Card.SYMBOLS[card_num - 1] if card_num != 14 else "A"
+
+    @classmethod
+    def get_value(cls, card_symbol, is_cmp=True):
+        if is_cmp:
+            return (
+                Card.SYMBOLS.index(card_symbol) + 1
+                if card_symbol != "A"
+                else Card.A_VALUE + Card.K_VALUE
+            )
+        return Card.SYMBOLS.index(card_symbol) + 1
+
     @property
     def cmp_value(self):
         return Card.A_VALUE + Card.K_VALUE if self.value == Card.A_VALUE else self.value
@@ -83,7 +97,7 @@ class Hand:
         self.total_sum = list(i.value for i in self.combination)
         for i in self.combination:
             if i.value == 1:
-                if sum(self.total_sum) == 15:
+                if max(self.total_sum) < 5:
                     to_compare_values.append(1)
                 else:
                     to_compare_values.append(i.cmp_value)
@@ -125,15 +139,24 @@ class Hand:
         self.hand_values.extend(other_values)
         if len(better_card_values) == 1:
             return "".join(better_card_values)
-        if self.cat == 3:
+        if self.cat == Hand.TWO_PAIR:
             return tuple(sorted(better_card_values, reverse=True))
         if self.cat == self.FULL_HOUSE:
             new_cat_rank = ()
             14 % 13 - 1
-            first_value = tuple(Card.SYMBOLS[item % len(Card.SYMBOLS) - 1] for item, value in self.pattern_values.items() if value == 3)
-            second_value = tuple(Card.SYMBOLS[item % len(Card.SYMBOLS) - 1] for item, value in self.pattern_values.items() if value == 2)
+            first_value = tuple(
+                Card.SYMBOLS[item % len(Card.SYMBOLS) - 1]
+                for item, value in self.pattern_values.items()
+                if value == 3
+            )
+            second_value = tuple(
+                Card.SYMBOLS[item % len(Card.SYMBOLS) - 1]
+                for item, value in self.pattern_values.items()
+                if value == 2
+            )
             new_cat_rank += first_value + second_value
             return new_cat_rank
+
     #    SYMBOLS = ("A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K")
     #    SYMBOLS = ("0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12")
 
@@ -172,8 +195,16 @@ class Hand:
             return False
         if self.cat == Hand.TWO_PAIR or self.cat == Hand.FULL_HOUSE:  # (4, 3) (5, 4)
             for item1, item2 in zip(self.cat_rank, other.cat_rank):
-                card1 = Card.SYMBOLS.index(item1) + 1 if self.total_sum == 15 and item1 != "A" else 14
-                card2 = Card.SYMBOLS.index(item2) + 1 if self.total_sum == 15 and item2 != "A" else 14
+                card1 = (
+                    Card.SYMBOLS.index(item1) + 1
+                    if self.total_sum == 15 and item1 != "A"
+                    else 14
+                )
+                card2 = (
+                    Card.SYMBOLS.index(item2) + 1
+                    if self.total_sum == 15 and item2 != "A"
+                    else 14
+                )
                 if card1 > card2:
                     print(f"Gana {card1}, {card2}")
                     return True
@@ -184,7 +215,7 @@ class Hand:
             return True
         if sum(self.values) < sum(other.values):
             return False
-        #print(self.hand_values, other.hand_values, "pepe")
+        # print(self.hand_values, other.hand_values, "pepe")
         for card_num1, card_num2 in zip(self.hand_values, other.hand_values):
             if card_num1 > card_num2:
                 return True
@@ -193,10 +224,10 @@ class Hand:
         return False
 
 
-#new_hand = Hand((Card('A❤'), Card('9❤'), Card('K❤'), Card('K♠'), Card('A◆')))
-#print(new_hand.cat_rank)
-#print(new_hand.hand_values)
+# new_hand = Hand((Card('A❤'), Card('9❤'), Card('K❤'), Card('K♠'), Card('A◆')))
+# print(new_hand.cat_rank)
+# print(new_hand.hand_values)
 
-#new_hand2 = Hand((Card('2♠'), Card('8❤'), Card('4♠'), Card('4◆'), Card('2◆')))
-#print(new_hand2.cat_rank)
-#print(new_hand2.hand_values)
+# new_hand2 = Hand((Card('2♠'), Card('8❤'), Card('4♠'), Card('4◆'), Card('2◆')))
+# print(new_hand2.cat_rank)
+# print(new_hand2.hand_values)
