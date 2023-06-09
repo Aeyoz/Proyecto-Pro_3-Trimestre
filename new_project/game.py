@@ -19,7 +19,7 @@ def get_winner(
         return p1, p1.hand
     if p2.hand > p1.hand:
         return p2, p2.hand
-    return p1, p1.hand
+    return None, p1.hand
 
 
 print(
