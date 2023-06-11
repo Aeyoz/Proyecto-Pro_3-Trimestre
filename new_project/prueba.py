@@ -1,5 +1,3 @@
-meme = ("3", "4")
-print(meme)
-meme = sorted(meme, reverse=True)
-print(meme)
-print("10".isdecimal())
+print("K" > "Q")
+
+pepe = "AJKQ"

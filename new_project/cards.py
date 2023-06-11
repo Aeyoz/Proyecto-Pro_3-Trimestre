@@ -145,14 +145,18 @@ class Hand:
         if len(better_card_values) == 1:
             return "".join(better_card_values)
         if self.cat == Hand.TWO_PAIR:
-            if all(i.isalpha() for i in better_card_values):
-                return tuple(sorted(better_card_values))
-            if all(i.isnumeric() for i in better_card_values):
-                if all(len(i) == 2 for i in better_card_values):
-                    return tuple(sorted(better_card_values))
-                return tuple(sorted(better_card_values, reverse=True))
-            else:
-                return tuple(sorted(better_card_values, reverse=True))
+            item1, item2 = better_card_values
+            if Card.get_value(item1) > Card.get_value(item2):
+                return item1, item2
+            return item2, item1
+#            if all(i.isalpha() for i in better_card_values):
+#                return tuple(sorted(better_card_values))
+#            if all(i.isnumeric() for i in better_card_values):
+#                if all(len(i) == 2 for i in better_card_values):
+#                    return tuple(sorted(better_card_values))
+#                return tuple(sorted(better_card_values, reverse=True))
+#            else:
+#                return tuple(sorted(better_card_values, reverse=True))
         if self.cat == self.FULL_HOUSE:
             first_value = tuple(
                 Card.SYMBOLS[item % len(Card.SYMBOLS) - 1]
