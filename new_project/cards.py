@@ -93,6 +93,46 @@ class Hand:
         return sorted(i.cmp_value for i in self.cards)
 
     @property
+    def hand_values(self):
+        """
+        Esta función devuelve los valores numéricos de las cartas
+        involucradas en la jugada, seguidas por el resto de cartas sobrantes
+        Ejemplo de la salida:
+        [2,2,9,5,3] -> Una pareja con las cartas sobrantes ordenadas
+        """
+        other_values = []
+        hand_values = []
+        for key, value in self.pattern_values.items():
+            if value != 1:
+                hand_values.extend([key] * value)
+            else:
+                other_values.append(key)
+        hand_values.sort(reverse=True)
+        other_values.sort(reverse=True)
+        hand_values.extend(other_values)
+        return hand_values
+
+    def same_suits(self) -> bool:
+        return self.cards[0].suit * 5 == "".join(i.suit for i in self.cards)
+
+    @property
+    def is_stair(self) -> tuple:
+        if self.same_suits() and self.consecutive:
+            return True, "escalera_de_color"
+        if self.consecutive:
+            return True, "stair"
+        return False, None
+
+    @property
+    def consecutive(self) -> bool:
+        fcard = self.values[0]
+        for card in self.values[1:]:
+            if (card - 1) != fcard:
+                return False
+            fcard = card
+        return True
+
+    @property
     def cat(self) -> int:
         """
         Devuelve un número sacado de un diccionario, cuyos campos son
@@ -114,26 +154,6 @@ class Hand:
             return self.ranking["color"]
         ranking = tuple(sorted(self.pattern_values.values(), reverse=True))
         return self.ranking[ranking]
-
-    @property
-    def hand_values(self):
-        """
-        Esta función devuelve los valores numéricos de las cartas
-        involucradas en la jugada, seguidas por el resto de cartas sobrantes
-        Ejemplo de la salida:
-        [2,2,9,5,3] -> Una pareja con las cartas sobrantes ordenadas
-        """
-        other_values = []
-        hand_values = []
-        for key, value in self.pattern_values.items():
-            if value != 1:
-                hand_values.extend([key] * value)
-            else:
-                other_values.append(key)
-        hand_values.sort(reverse=True)
-        other_values.sort(reverse=True)
-        hand_values.extend(other_values)
-        return hand_values
 
     @property
     def cat_rank(self) -> str | tuple:
@@ -167,26 +187,6 @@ class Hand:
                     items.append(Card.get_symbol(item))
             return tuple(items)
         return "".join(better_card_values)
-
-    def same_suits(self) -> bool:
-        return self.cards[0].suit * 5 == "".join(i.suit for i in self.cards)
-
-    @property
-    def is_stair(self) -> tuple:
-        if self.same_suits() and self.consecutive:
-            return True, "escalera_de_color"
-        if self.consecutive:
-            return True, "stair"
-        return False, None
-
-    @property
-    def consecutive(self) -> bool:
-        fcard = self.values[0]
-        for card in self.values[1:]:
-            if (card - 1) != fcard:
-                return False
-            fcard = card
-        return True
 
     def __repr__(self) -> str:
         return f"{self.cards}"
