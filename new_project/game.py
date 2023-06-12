@@ -15,6 +15,8 @@ def get_winner(
     # print(p1.hand)
     p2.hand = p2.get_best_combination()
     # print(p2.hand)
+    print(p1.hand.hand_values)
+    print(p2.hand.hand_values)
     if p1.hand > p2.hand:
         return p1, p1.hand
     if p2.hand > p1.hand:
@@ -29,3 +31,15 @@ print(
         [[Card("A❤"), Card("9❤")], [Card("6❤"), Card("5♣")]],
     )
 )
+
+
+    pytest.param(
+        [Player('Player 1'), Player('Player 2')],
+        [Card('A❤'), Card('9♠'), Card('3◆'), Card('3❤'), Card('2◆')],
+        [[Card('7♠'), Card('4◆')], [Card('5♠'), Card('4❤')]],
+        'Player 1',
+        [Card('3◆'), Card('3❤'), Card('A❤'), Card('9♠'), Card('7♠')],
+        Hand.ONE_PAIR,
+        '3',
+        id="9",
+    ),

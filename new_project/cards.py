@@ -33,7 +33,7 @@ class Card:
         if is_cmp:
             return (
                 Card.SYMBOLS.index(card_symbol) + 1
-                if card_symbol not in ("A","1","0")
+                if card_symbol not in ("A", "1", "0")
                 else Card.A_VALUE + Card.K_VALUE
             )
         return Card.SYMBOLS.index(card_symbol) + 1
@@ -93,18 +93,11 @@ class Hand:
 
     @property
     def values(self) -> list:
-        to_compare_values = []
-        self.total_sum = list(i.value for i in self.combination)
-        for i in self.combination:
-            if i.value == 1:
-                if max(self.total_sum) < 5:
-                    to_compare_values.append(1)
-                else:
-                    to_compare_values.append(i.cmp_value)
-                continue
-            to_compare_values.append(i.cmp_value)
-        return sorted(to_compare_values)
-    
+        self.total_sum = sorted(list(i.value for i in self.combination), reverse=True)
+        if self.total_sum == list(range(1, 6)):
+            return self.total_sum
+        return sorted(i.cmp_value for i in self.combination)
+
     @property
     def cat(self) -> int:
         is_stair, hand_value = self.is_stair
@@ -124,8 +117,8 @@ class Hand:
                 hand_values.extend([key] * value)
             else:
                 other_values.append(key)
-        hand_values = list(sorted(hand_values, reverse=True))
-        other_values.sort()
+        hand_values.sort(reverse=True)
+        other_values.sort(reverse=True)
         hand_values.extend(other_values)
         return hand_values
 
@@ -149,14 +142,6 @@ class Hand:
             if Card.get_value(item1) > Card.get_value(item2):
                 return item1, item2
             return item2, item1
-#            if all(i.isalpha() for i in better_card_values):
-#                return tuple(sorted(better_card_values))
-#            if all(i.isnumeric() for i in better_card_values):
-#                if all(len(i) == 2 for i in better_card_values):
-#                    return tuple(sorted(better_card_values))
-#                return tuple(sorted(better_card_values, reverse=True))
-#            else:
-#                return tuple(sorted(better_card_values, reverse=True))
         if self.cat == self.FULL_HOUSE:
             first_value = tuple(
                 Card.SYMBOLS[item % len(Card.SYMBOLS) - 1]
@@ -175,8 +160,6 @@ class Hand:
 
     @property
     def is_stair(self) -> tuple:
-        if self.same_suits() and sum(self.values) == 60:
-            return True, "escalera_real"
         if self.same_suits() and self.consecutive:
             return True, "escalera_de_color"
         if self.consecutive:
