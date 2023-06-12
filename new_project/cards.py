@@ -1,5 +1,4 @@
 from __future__ import annotations
-import helpers
 
 
 class Card:
@@ -19,9 +18,8 @@ class Card:
     K_VALUE = 13
 
     def __init__(self, card_representation: str):
-        *str_value, suit = card_representation
-        self.suit = suit
-        self.str_value = "".join(str_value)
+        self.suit = card_representation[-1]
+        self.str_value = card_representation[:-1]
         self.value = Card.SYMBOLS.index(self.str_value) + 1
 
     @classmethod
@@ -29,14 +27,12 @@ class Card:
         return Card.SYMBOLS[card_num - 1] if card_num != 14 else "A"
 
     @classmethod
-    def get_value(cls, card_symbol, is_cmp=True):
-        if is_cmp:
-            return (
-                Card.SYMBOLS.index(card_symbol) + 1
-                if card_symbol not in ("A", "1", "0")
-                else Card.A_VALUE + Card.K_VALUE
-            )
-        return Card.SYMBOLS.index(card_symbol) + 1
+    def get_value(cls, card_symbol):
+        return (
+            Card.SYMBOLS.index(card_symbol) + 1
+            if card_symbol != "A"
+            else Card.A_VALUE + Card.K_VALUE
+        )
 
     @property
     def cmp_value(self):
@@ -70,16 +66,14 @@ class Hand:
     FULL_HOUSE = 7
     FOUR_OF_A_KIND = 8
     STRAIGHT_FLUSH = 9
-    ROYAL_FLUSH = 10
+    LOWER_STAIR = [5, 4, 3, 2, 1]
 
-    def __init__(self, combination: tuple):
-        self.combination = combination
+    def __init__(self, cards: tuple):
+        self.cards = cards
         self.pattern_values = {
             item: self.values.count(item) for item in set(self.values)
         }
-        self.is_cmp = max(self.total_sum) > 5
         self.ranking = {
-            "escalera_real": Hand.ROYAL_FLUSH,  # Escalera real
             "escalera_de_color": Hand.STRAIGHT_FLUSH,  # Escalera de color
             (4, 1): Hand.FOUR_OF_A_KIND,  # Poker
             (3, 2): Hand.FULL_HOUSE,  # Full
@@ -93,13 +87,26 @@ class Hand:
 
     @property
     def values(self) -> list:
-        self.total_sum = sorted(list(i.value for i in self.combination), reverse=True)
-        if self.total_sum == list(range(1, 6)):
+        self.total_sum = sorted(list(i.value for i in self.cards), reverse=True)
+        if self.total_sum == Hand.LOWER_STAIR:
             return self.total_sum
-        return sorted(i.cmp_value for i in self.combination)
+        return sorted(i.cmp_value for i in self.cards)
 
     @property
     def cat(self) -> int:
+        """
+        Devuelve un número sacado de un diccionario, cuyos campos son
+        clave: El *patrón de la mano
+        valor: El atributo de clase correspondiente a la puntuación de esa jugada
+        * Con el patrón de una mano nos referimos a los counts de cada
+        tipo de digito que pueda haber en la mano
+        Ejemplo:
+        Mano -> [A♣,2♣,3♣,4♣,5♣]
+        Patrón -> (1,1,1,1,1) -> Escalera
+        Ejemplo 2:
+        Mano -> [A♣,2♣,2❤,3♣,4♣]
+        Patrón -> (2,1,1,1) -> Pareja
+        """
         is_stair, hand_value = self.is_stair
         if is_stair:
             return self.ranking[hand_value]
@@ -110,6 +117,12 @@ class Hand:
 
     @property
     def hand_values(self):
+        """
+        Esta función devuelve los valores numéricos de las cartas
+        involucradas en la jugada, seguidas por el resto de cartas sobrantes
+        Ejemplo de la salida:
+        [2,2,9,5,3] -> Una pareja con las cartas sobrantes ordenadas
+        """
         other_values = []
         hand_values = []
         for key, value in self.pattern_values.items():
@@ -124,39 +137,39 @@ class Hand:
 
     @property
     def cat_rank(self) -> str | tuple:
+        """
+        Esta función devuelve la mejor/mejores cartas según la mano obtenida.
+        En caso de una doble pareja se devuelve la pareja más alta primero:
+            Mano -> [K❤, K◆, 3♣, 3❤, 5♣]
+            Resultado -> (K, 3)
+        En caso de full house se devuelve el valor del trio y luego pareja:
+            Mano -> [Q❤, Q♠, Q◆, 4♣, 4◆]
+            Resultado -> (Q, 4)
+        En el resto de manos se devuelve la carta más alta.
+        """
         if len(self.pattern_values) == len(self.values):
-            highest_card = max(self.pattern_values.keys())
-            return Card.SYMBOLS[highest_card - 1] if highest_card != 14 else "A"
-        pattern = list(self.pattern_values.values())
+            return Card.get_symbol(max(self.pattern_values.keys()))
         better_card_values = []
-        other_values = []
         for key, value in self.pattern_values.items():
-            if value in pattern and value != 1:
-                better_card_values.append(Card.SYMBOLS[key - 1] if key != 14 else "A")
-            else:
-                other_values.append(key)
-        if len(better_card_values) == 1:
-            return "".join(better_card_values)
+            if value in self.pattern_values.values() and value != 1:
+                better_card_values.append(Card.get_symbol(key))
         if self.cat == Hand.TWO_PAIR:
             item1, item2 = better_card_values
             if Card.get_value(item1) > Card.get_value(item2):
                 return item1, item2
             return item2, item1
         if self.cat == self.FULL_HOUSE:
-            first_value = tuple(
-                Card.SYMBOLS[item % len(Card.SYMBOLS) - 1]
-                for item, value in self.pattern_values.items()
-                if value == 3
-            )
-            second_value = tuple(
-                Card.SYMBOLS[item % len(Card.SYMBOLS) - 1]
-                for item, value in self.pattern_values.items()
-                if value == 2
-            )
-            return first_value + second_value
+            items = []
+            for item, value in self.pattern_values.items():
+                if value == 3:
+                    items.insert(0, Card.get_symbol(item))
+                elif value == 2:
+                    items.append(Card.get_symbol(item))
+            return tuple(items)
+        return "".join(better_card_values)
 
     def same_suits(self) -> bool:
-        return self.combination[0].suit * 5 == "".join(i.suit for i in self.combination)
+        return self.cards[0].suit * 5 == "".join(i.suit for i in self.cards)
 
     @property
     def is_stair(self) -> tuple:
@@ -176,12 +189,18 @@ class Hand:
         return True
 
     def __repr__(self) -> str:
-        return f"{self.combination}"
+        return f"{self.cards}"
 
     def __contains__(self, other: Card) -> bool:
-        return other in self.combination
+        return other in self.cards
 
     def __gt__(self, other: Hand) -> bool:
+        """
+        Comprueba que mano es mayor entre dos posibles manos
+        Primero comprueba la categoria de la mano para descartar
+        que sea de una categoria inferior, luego mira cada una de las cartas
+        involucradas en la jugada
+        """
         if self.cat > other.cat:
             return True
         if self.cat < other.cat:
